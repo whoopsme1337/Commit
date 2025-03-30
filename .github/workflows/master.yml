@@ -5,7 +5,7 @@ on:
     branches: [master] # Ensures the workflow triggers on pushes to master
 
   schedule:
-    - cron: '0 */12 * * *' # Executes every 12 hours
+    - cron: '0 */3 * * *' # Executes every 3 hours (8 times a day)
 
   workflow_dispatch: # Allows manual triggering from the GitHub UI
 
@@ -26,24 +26,31 @@ jobs:
           persist-credentials: true # Ensures credentials are available for subsequent steps
           fetch-depth: 0 # Fetches all history for all branches and tags
 
-      - name: Update Timestamp File
-        run: |
-          current_time=$(date '+%Y-%m-%d %H:%M:%S')
-          echo "Updated on $current_time" > TIMESTAMP.txt
-
       - name: Setup Git Configuration
         run: |
           git config user.email "coinnyari@gmail.com"
           git config user.name "bangpateng"
 
-      - name: Prepare Commit
+      - name: Generate Multiple Commits
         run: |
           commit_messages=("Update: ⏰" "Refresh: 🔄" "Renew: 🌟" "Revise: 📝" "Amend: 🛠" "Adjust: 🔧" "Change: 📈" "Modify: 🖊" "Transform: 🌀" "Revamp: 🌈")
-          random_msg=${commit_messages[$RANDOM % ${#commit_messages[@]}]}
-
-          git add TIMESTAMP.txt
-          git commit -m "$random_msg - $current_time" || echo "No changes to commit."
-
+          
+          # Akan membuat 63 commit setiap kali workflow berjalan (63 x 8 kali sehari = ~500 commit)
+          for i in {1..63}
+          do
+            current_time=$(date '+%Y-%m-%d %H:%M:%S')
+            echo "Updated on $current_time - Commit #$i" > TIMESTAMP.txt
+            
+            random_index=$((RANDOM % ${#commit_messages[@]}))
+            random_msg=${commit_messages[$random_index]}
+            
+            git add TIMESTAMP.txt
+            git commit -m "$random_msg - $current_time - #$i"
+            
+            # Jeda singkat agar timestamp berbeda
+            sleep 1
+          done
+          
       - name: GitHub Push
         uses: ad-m/github-push-action@v0.6.0
         with:
