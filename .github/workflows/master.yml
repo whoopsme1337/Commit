@@ -28,8 +28,8 @@ jobs:
 
       - name: Setup Git Configuration
         run: |
-          git config user.email "coinnyari@gmail.com"
-          git config user.name "bangpateng"
+          git config user.email "elipelor198@gmail.com"
+          git config user.name "whoopsmr1337"
 
       - name: Generate Multiple Commits
         run: |
